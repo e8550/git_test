@@ -4,29 +4,32 @@
 #include <vector> 
 using namespace cv;
 using namespace std;
-int level1 = 110, level2 = 120, level3 = 240, level = 200, n = 0, n2 = 0, flag = 0;
+int level1 =0, level2 = 255, level3 = 0, level = 0, n = 0, n2 = 0, flag = 0;
 int  loop_end;
 Mat img;
 //Mat gray_img;
-Mat hsv_img;
+//Mat hsv_img;
 Mat channels[3];
 Mat bin_img;
 Mat bin1_img;
 Mat bin2_img;
 Mat erode_img;
-Mat element = Mat::ones(5, 5, CV_8UC1);
+Mat img2;
+Mat element = Mat::ones(2, 2, CV_8UC1);
 int Syori() {
-	cvtColor(img, hsv_img, COLOR_RGB2HSV);
-	split(hsv_img, channels);
-	channels[0] = channels[0] * 1.417;
+	img2 = img.clone();
+//	cvtColor(img, hsv_img, COLOR_RGB2HSV);
+	split(img, channels);
+//	cvtColor(channels[0], channels[0], CV_RGB2GRAY);
+//	channels[0] = channels[0] * 1.417;
 	if (flag) {
-		threshold(channels[0], bin1_img, level1, 255, THRESH_TOZERO);
+		threshold(channels[1], bin1_img, level1, 255, THRESH_TOZERO);
 		threshold(bin1_img, bin2_img, level2, 255, THRESH_TOZERO_INV);
 		threshold(bin2_img, bin_img, level3, 255, THRESH_BINARY);
 	}
-	else threshold(channels[0], bin_img, level, 255, THRESH_BINARY);
+	else threshold(channels[1], bin_img, level, 255, THRESH_BINARY);
 	//	bin_img = ~bin_img;
-	erode_img = bin_img;
+	erode_img = bin_img.clone();
 	for (int i = 0; i < n; i++) {
 		erode(erode_img, erode_img, element, Point(-1, -1), 1);
 	}
@@ -46,24 +49,25 @@ int Syori() {
 		}
 		x /= count;
 		y /= count;
-		circle(img, Point(x, y), 5, Scalar(0, 0, 255), 2, 4);
+		circle(img2, Point(x, y), 5, Scalar(0, 0, 255), 2, 4);
 	}
 	cout << contours.size() << endl;
-	imshow("HSV_H", channels[0]);
+	imshow("RGB_R", channels[1]);
 	if (flag) {
 		imshow("binary1", bin1_img);
 		imshow("binary2", bin2_img);
 	}
 	imshow("binary", bin_img);
-	//imshow("erode", erode_img);
+	imshow("erode", erode_img);
 	imshow("image", img);
+	imshow("circle", img2);
 	const int key = waitKey(1);
 	if (key == 'q') {
 		return 1;
 	}
 	else if (key == 's') {
 		imwrite("C:/Users/takashi/Desktop/電気情報工学科/電気情報工学実験/2/mini_gamesection/camera.png", img);
-		imwrite("C:/Users/takashi/Desktop/電気情報工学科/電気情報工学実験/2/mini_gamesection/camera_HSV_H.png", channels[0]);
+		imwrite("C:/Users/takashi/Desktop/電気情報工学科/電気情報工学実験/2/mini_gamesection/camera_red.png", channels[1]);
 	}
 	else if (key == 'f') cin >> flag;
 	else if (key == 'a') cin >> level;
@@ -90,7 +94,7 @@ int Capture() {
 }
 int Img() {
 	while (1) {
-		img=imread("C:/Users/takashi/Desktop/電気情報工学科/電気情報工学実験/2/mini_gamesection/17918.jpg", 1);
+		img = imread("C:/Users/takashi/Desktop/電気情報工学科/電気情報工学実験/2/mini_gamesection/dack2.jpg", 1);
 		if (img.empty()) return -1;
 		loop_end = Syori();
 		if (loop_end) break;
@@ -110,3 +114,27 @@ int main() {
 
 	return 0;
 }
+
+
+/*
+#include <opencv2/opencv.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <iostream> 
+#include <vector> 
+using namespace cv;
+using namespace std;
+int main() {
+	Mat img;
+	img = imread("C:/Users/takashi/Desktop/電気情報工学科/電気情報工学実験/2/mini_gamesection/dack2.jpg");
+	Mat rgb_img;
+	rgb_img = img.clone();
+	imshow("rgb", rgb_img);
+	Mat channels[3];
+	split(rgb_img, channels);
+	imshow("G", channels[0]);
+	imshow("R", channels[1]);
+	imshow("B", channels[2]);
+	imwrite("C:/Users/takashi/Desktop/電気情報工学科/電気情報工学実験/2/mini_gamesection/red.jpg", channels[1]);
+	waitKey(0);
+	return 0;
+}*/
